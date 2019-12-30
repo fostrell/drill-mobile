@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:grammer_drill/service/http_service.dart';
+import 'dart:convert' as convert;
+import 'package:http/http.dart' as http;
 
 void main() => runApp(MyApp());
 
@@ -45,6 +48,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  final HttpService httpService = HttpService();
 
   void _incrementCounter() {
     setState(() {
@@ -65,6 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
+    var posts = httpService.getQuestions();
     return Scaffold(
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
