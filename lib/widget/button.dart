@@ -20,12 +20,17 @@ class Button extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    TextStyle textStyle = disabled
+        ? Theme.of(context).textTheme.title.copyWith(color: Colors.white12)
+        : Theme.of(context).textTheme.title;
+    Color borderColor = disabled ? Colors.white10 : Colors.white24;
     return Padding(
       padding: EdgeInsets.only(
           left: this.right ? (this.padding / 2) : this.padding,
           bottom: this.padding,
           right: this.left ? (this.padding / 2) : this.padding),
       child: OutlineButton(
+          disabledBorderColor: borderColor,
           shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
           onPressed: this.disabled ? null : this.onPressed,
           child: Padding(
@@ -35,7 +40,7 @@ class Button extends StatelessWidget {
               children: <Widget>[
                 Text(
                   this.text,
-                  style: Theme.of(context).textTheme.title.copyWith(color: Colors.blueGrey),
+                  style: textStyle,
                 ),
               ],
             ),

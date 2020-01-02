@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:grammer_drill/model/answer.dart';
 import 'package:grammer_drill/model/question.dart';
+import 'package:grammer_drill/service/text_service.dart';
 import 'package:grammer_drill/widget/button.dart';
+import 'package:grammer_drill/widget/input.dart';
 
 class ExerciseScreen extends StatefulWidget {
   static initData(List<Question> data, int questionNumber, bool isRandom) {
@@ -31,6 +33,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   @override
   Widget build(BuildContext context) {
     Question question = widget.data[_answers.length];
+    var widgets = TextService.parseText(question.question, context);
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -39,7 +42,10 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Text(question.question, style: Theme.of(context).textTheme.title),
+                child: Wrap(
+                  runSpacing: 4,
+                  children: widgets,
+                ),
               ),
             ),
             Stack(
@@ -53,8 +59,25 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
             Row(
               mainAxisSize: MainAxisSize.max,
               children: <Widget>[
-                Expanded(child: Button(text: 'Previous', left: true, disabled: _currentQuestion == 1,)),
-                Expanded(child: Button(text: 'Check', right: true)),
+                Expanded(
+                    child: Button(
+                  text: 'Previous',
+                  left: true,
+                  disabled: _currentQuestion == 1,
+                )),
+                Expanded(child: Button(text: 'Check', right: true, onPressed: () {
+                  widgets.forEach(((item) {
+                    if (item is Input) {
+                      if (question.answer[item.gapNumber] == item.text) {
+                        item.success(true);
+                        item.error(false);
+                      } else {
+                        item.success(false);
+                        item.error(true);
+                      }
+                    }
+                  }));
+                },)),
               ],
             )
           ],
