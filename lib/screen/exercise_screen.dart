@@ -32,8 +32,8 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Question question = widget.data[_answers.length];
-    var widgets = TextService.parseText(question.question, context);
+    Question question = widget.data[_currentQuestion - 1];
+    var widgets = TextService.parseText(question.question, _currentQuestion, context);
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -61,23 +61,36 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
               children: <Widget>[
                 Expanded(
                     child: Button(
-                  text: 'Previous',
+                  text: 'Prev',
                   left: true,
                   disabled: _currentQuestion == 1,
+                  onPressed: () => setState(() => --_currentQuestion),
                 )),
-                Expanded(child: Button(text: 'Check', right: true, onPressed: () {
-                  widgets.forEach(((item) {
-                    if (item is Input) {
-                      if (question.answer[item.gapNumber] == item.text) {
-                        item.success(true);
-                        item.error(false);
-                      } else {
-                        item.success(false);
-                        item.error(true);
-                      }
-                    }
-                  }));
-                },)),
+                Expanded(
+                    child: Button(
+                        text: 'Check',
+                        left: true,
+                        key: Key(question.question),
+                        onPressed: () {
+                          widgets.forEach(((item) {
+                            if (item is Input) {
+                              if (question.answer[item.gapNumber] == item.text) {
+                                item.success(true);
+                                item.error(false);
+                              } else {
+                                item.success(false);
+                                item.error(true);
+                              }
+                            }
+                          }));
+                        })),
+                Expanded(
+                    child: Button(
+                  text: 'Next',
+                  right: true,
+                  disabled: _currentQuestion == widget.data.length,
+                  onPressed: () => setState(() => ++_currentQuestion),
+                )),
               ],
             )
           ],
