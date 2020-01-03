@@ -3,27 +3,28 @@ import 'package:flutter/services.dart';
 import 'package:grammer_drill/utils/text_utils.dart';
 
 class Input extends StatefulWidget {
-  Input({Key key, gapNumber})
+  Input({Key key, gapNumber, text})
       : this._gapNumber = gapNumber,
+        _controller = TextEditingController(text: text),
         super(key: key);
 
-  final TextEditingController _controller = TextEditingController();
-  _InputState state;
+  final TextEditingController _controller;
+  _InputState _state;
 
   String get text => _controller.text;
 
   int get gapNumber => _gapNumber;
 
-  void success(bool success) => state.setSuccess(success);
+  void success(bool success) => _state.setSuccess(success);
 
-  void error(bool success) => state.setError(success);
+  void error(bool success) => _state.setError(success);
 
   final int _gapNumber;
 
   @override
   _InputState createState() {
-    state = _InputState();
-    return state;
+    _state = _InputState();
+    return _state;
   }
 }
 
