@@ -20,7 +20,6 @@ jobs:
         KEY_JKS: ${{ secrets.KEY }}
         KEY_PASSWORD: ${{ secrets.ALIAS_PASSWORD }}
         ALIAS_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-    - run: flutter pub get
     - uses: actions/upload-artifact@v1
       with:
         name: release-apk
