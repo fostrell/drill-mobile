@@ -21,7 +21,8 @@ jobs:
         KEY_PASSWORD: ${{ secrets.ALIAS_PASSWORD }}
         ALIAS_PASSWORD: ${{ secrets.KEY_PASSWORD }}
       run: echo $KEY > android/key.jks && flutter build apk --target-platform android-arm --split-per-abi
-    - uses: actions/upload-artifact@v1
+    - name: Create a Release APK
+      uses: ncipollo/release-action@v1
       with:
-        name: release-apk
-        path: build/app/outputs/apk/release/app-arm64-v8a-release.apk
+        artifacts: "build/app/outputs/apk/release/*.apk"
+        token: ${{ secrets.TOKEN }}
