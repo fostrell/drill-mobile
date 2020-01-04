@@ -4,7 +4,7 @@ import 'package:grammer_drill/model/question.dart';
 import 'package:http/http.dart';
 
 class HttpService {
-  final String postsURL = "http://10.0.2.2:8080/data";
+  final String postsURL = "http://45.67.231.61:3000/data";
 
   Future<HttpResponse<List<Question>>> getQuestions() async {
     try {
