@@ -23,7 +23,7 @@ jobs:
       run: |
         echo $KEY > android/key.b64
         openssl enc -d -base64 -in android/key.b64 -out android/key.jks
-        cat android/key.jks
+        ls -lah android/key.jks
         flutter build apk --target-platform android-arm --split-per-abi
     - name: Create a Release APK
       uses: ncipollo/release-action@v1
