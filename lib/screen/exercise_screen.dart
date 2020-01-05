@@ -90,15 +90,19 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
     return Scaffold(
       body: SafeArea(
         child: Column(
-          mainAxisSize: MainAxisSize.max,
           children: <Widget>[
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Wrap(
-                  runSpacing: 4,
-                  children: _widgets,
-                ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Wrap(
+                      runSpacing: 4,
+                      children: _widgets,
+                    ),
+                  ),
+                ],
               ),
             ),
             Stack(
