@@ -4,7 +4,6 @@ import 'package:grammer_drill/model/question.dart';
 import 'package:grammer_drill/screen/result_screen.dart';
 import 'package:grammer_drill/service/text_service.dart';
 import 'package:grammer_drill/widget/button.dart';
-import 'package:grammer_drill/widget/input.dart';
 
 class ExerciseScreen extends StatefulWidget {
   static List<Question> initData(List<Question> data, int questionNumber, bool isRandom) {
@@ -29,51 +28,46 @@ class ExerciseScreen extends StatefulWidget {
 
 class _ExerciseScreenState extends State<ExerciseScreen> {
   List<Answer> _answers;
-  List<Widget> _widgets;
+  Map<int, String> _responses = {};
+  bool _showHint = false;
+  bool _checkAnswer = false;
   int _currentQuestion = 0;
 
-  _ExerciseScreenState(int questionNumber) : this._answers = List(questionNumber);
+  _ExerciseScreenState(int questionNumber)
+      : this._answers = List(questionNumber);
 
-  void onCheckAnswers(Question question) {
-    _widgets.forEach(((item) {
-      if (item is Input) {
-        if (question.answer[item.gapNumber] == item.text) {
-          item.success(true);
-          item.error(false);
-        } else {
-          item.success(false);
-          item.error(true);
-        }
-      }
-    }));
-  }
+  void onCheckAnswers() => setState(() => _checkAnswer = true);
 
-  List<String> getResponses() {
-    List<String> responses = [];
-    _widgets.forEach(((item) {
-      if (item is Input) {
-        responses.add(item.text);
-      }
-    }));
-    return responses;
-  }
-
-  void onPreviousQuestion(Question question) {
+  void onChangeResponse(int index, String response) {
     setState(() {
-      _answers[_currentQuestion] = Answer(question: question, responses: getResponses());
-      --_currentQuestion;
+      _checkAnswer = false;
+      _responses = Map.of(_responses);
+      _responses[index] = response;
     });
   }
 
-  void onNextQuestion(Question question) {
+  void onPreviousQuestion(Question question, List<Widget> widgets) {
+    var index = _currentQuestion - 1;
     setState(() {
-      _answers[_currentQuestion] = Answer(question: question, responses: getResponses());
-      ++_currentQuestion;
+      _answers[_currentQuestion] = Answer(question: question, responses: _responses);
+      _currentQuestion = index;
+      _checkAnswer = false;
+      _responses = _answers[index].responses;
     });
   }
 
-  void onFinish(Question question) {
-    _answers[_currentQuestion] = Answer(question: question, responses: getResponses());
+  void onNextQuestion(Question question, List<Widget> widgets) {
+    var index = _currentQuestion + 1;
+    setState(() {
+      _answers[_currentQuestion] = Answer(question: question, responses: _responses);
+      _currentQuestion = index;
+      _checkAnswer = false;
+      _responses = _answers[index] == null ? {} : _answers[index].responses;
+    });
+  }
+
+  void onFinish(Question question, List<Widget> widgets) {
+    _answers[_currentQuestion] = Answer(question: question, responses: _responses);
     Navigator.push(
         context,
         MaterialPageRoute(
@@ -81,13 +75,20 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
         ));
   }
 
+  void showAnswers(Question question) {
+    setState(() {
+      _responses = widget.data[_currentQuestion].answer.asMap();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     Question question = widget.data[_currentQuestion];
     bool isTheLastQuestion = _currentQuestion == widget.data.length - 1;
-    List<String> responses = _answers[_currentQuestion] != null ? _answers[_currentQuestion].responses : [];
-    _widgets = TextService.parseText(question.question, _currentQuestion, responses, context);
+    var widgets =
+        TextService.parseText(question.question, _responses, question.answer, _checkAnswer, onChangeResponse, context);
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: Column(
           children: <Widget>[
@@ -99,11 +100,35 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                     padding: const EdgeInsets.all(16.0),
                     child: Wrap(
                       runSpacing: 4,
-                      children: _widgets,
+                      children: widgets,
                     ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      FlatButton(
+                        child: Text("answers", style: TextStyle(color: Colors.blueGrey)),
+                        onPressed: () => showAnswers(question),
+                      ),
+                      FlatButton(
+                        child: Text(_showHint ? "hide hint" : "show hint", style: TextStyle(color: Colors.blueGrey)),
+                        onPressed: () => setState(() => _showHint = !_showHint),
+                      ),
+                    ],
                   ),
                 ],
               ),
+            ),
+            Stack(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    question.hint,
+                    style: TextStyle(color: _showHint ? Colors.grey : Colors.transparent),
+                  ),
+                ),
+              ],
             ),
             Stack(
               children: <Widget>[
@@ -121,19 +146,15 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
                   text: 'Prev',
                   left: true,
                   disabled: _currentQuestion == 0,
-                  onPressed: () => onPreviousQuestion(question),
+                  onPressed: () => onPreviousQuestion(question, widgets),
                 )),
                 Expanded(
-                    child: Button(
-                        text: 'Check',
-                        left: true,
-                        key: Key(question.question),
-                        onPressed: () => onCheckAnswers(question))),
+                    child: Button(text: 'Check', left: true, key: Key(question.question), onPressed: onCheckAnswers)),
                 Expanded(
                     child: Button(
                   text: isTheLastQuestion ? 'Finish' : 'Next',
                   right: true,
-                  onPressed: () => isTheLastQuestion ? onFinish(question) : onNextQuestion(question),
+                  onPressed: () => isTheLastQuestion ? onFinish(question, widgets) : onNextQuestion(question, widgets),
                 )),
               ],
             )

@@ -2,59 +2,38 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:grammer_drill/utils/text_utils.dart';
 
-class Input extends StatefulWidget {
-  Input({Key key, gapNumber, text})
-      : this._gapNumber = gapNumber,
-        _controller = TextEditingController(text: text),
+class Input extends StatelessWidget {
+  Input({Key key, isChecking, onChange, correctAnswer, index, text})
+      : this._isChecking = isChecking,
+        this._onChange = onChange,
+        this._index = index,
+        this._correctAnswer = correctAnswer,
+        this._controller = new TextEditingController.fromValue(
+            TextEditingValue(text: text, selection: TextSelection.collapsed(offset: text.length))),
         super(key: key);
 
   final TextEditingController _controller;
-  _InputState _state;
-
-  String get text => _controller.text;
-
-  int get gapNumber => _gapNumber;
-
-  void success(bool success) => _state.setSuccess(success);
-
-  void error(bool success) => _state.setError(success);
-
-  final int _gapNumber;
-
-  @override
-  _InputState createState() {
-    _state = _InputState();
-    return _state;
-  }
-}
-
-class _InputState extends State<Input> {
-  bool success = false;
-  bool error = false;
-
-  void setSuccess(bool status) => setState(() => success = status);
-
-  void setError(bool status) => setState(() => error = status);
+  final bool _isChecking;
+  final Function _onChange;
+  final int _index;
+  final String _correctAnswer;
 
   @override
   Widget build(BuildContext context) {
     Color color = Colors.white60;
-    if (success) {
+    if (_isChecking && _correctAnswer == _controller.text) {
       color = Colors.green;
-    } else if (error) {
+    } else if (_isChecking && _correctAnswer != _controller.text) {
       color = Colors.red;
     }
     return Container(
       width: 30,
       child: TextField(
-        onChanged: (text) {
-          setSuccess(false);
-          setError(false);
-        },
+        onChanged: (text) => _onChange(_index, text),
         inputFormatters: [
           LengthLimitingTextInputFormatter(2),
         ],
-        controller: widget._controller,
+        controller: _controller,
         style: Theme.of(context).textTheme.title.copyWith(color: color, fontFamily: TextUtils.getFontFamily()),
         decoration: InputDecoration(
             focusedBorder: new UnderlineInputBorder(borderSide: new BorderSide(color: color)),
@@ -63,11 +42,5 @@ class _InputState extends State<Input> {
             contentPadding: const EdgeInsets.only(left: 0, right: 0, top: 0, bottom: 2)),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    widget._controller.dispose();
-    super.dispose();
   }
 }
