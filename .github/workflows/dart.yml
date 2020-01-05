@@ -17,10 +17,11 @@ jobs:
         channel: 'dev'
     - name: Build flutter
       env:
+        KEY: ${{ secrets.KEY }}
         KEY_PASSWORD: ${{ secrets.ALIAS_PASSWORD }}
         ALIAS_PASSWORD: ${{ secrets.KEY_PASSWORD }}
       run: |
-        echo ${{ secrets.KEY }} > android/key.b64
+        echo $KEY > android/key.b64
         openssl enc -d -base64 -in android/key.b64 -out android/key.jks
         ls -lah android/key.jks
         flutter build apk --target-platform android-arm --split-per-abi
