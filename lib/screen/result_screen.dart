@@ -15,7 +15,7 @@ class ResultScreen extends StatelessWidget {
           isCorrect = false;
         }
       }
-      if (isCorrect) {
+      if (isCorrect && answer.responses.length != 0) {
         ++result;
       }
     });

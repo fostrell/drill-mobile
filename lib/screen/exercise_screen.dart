@@ -59,7 +59,7 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   void onNextQuestion(Question question, List<Widget> widgets) {
     var index = _currentQuestion + 1;
     setState(() {
-      _answers[_currentQuestion] = Answer(question: question, responses: _responses);
+      _answers[_currentQuestion] = Answer(question: question, responses: _responses ?? Map<int, String>());
       _currentQuestion = index;
       _checkAnswer = false;
       _responses = _answers[index] == null ? {} : _answers[index].responses;
